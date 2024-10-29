@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Post List</title>
+  <!-- Bootstrap CSS CDN -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <a href="/">홈으로</a>
+  <h1>Post List</h1>
+  <a href="/posts/new" class="btn btn-primary mb-3">Create New Post</a>
+  <div th:if="${#lists.isEmpty(posts)}">
+    <p>No posts available.</p>
+  </div>
+  <table class="table table-striped" th:unless="${#lists.isEmpty(posts)}">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Title</th>
+      <th>Author</th>
+      <th>Date</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${posts}">
+      <td th:text="${post.id}">1</td>
+      <td>
+        <a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Post Title</a>
+      </td>
+      <td th:text="${post.user.username}">Author Name</td>
+      <td th:text="${#temporals.format(post.postDate, 'yyyy-MM-dd HH:mm')}">2024-04-27 10:00</td>
+      <!-- 포스트 수정 및 삭제 버튼 추가 가능 -->
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<!-- Bootstrap JS 및 종속성 CDN -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+</html>

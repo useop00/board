@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'사용자 상세 - ' + ${user.username}">사용자 상세</title>
+  <!-- Bootstrap CSS CDN -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h1 th:text="${user.username}">사용자 이름</h1>
+  <p><strong>이메일:</strong> <span th:text="${user.password}">user@example.com</span></p>
+  <a th:href="@{/users/{id}/edit(id=${user.username})}" class="btn btn-secondary">수정</a>
+  <form th:action="@{/users/{id}/delete(id=${user.username})}" method="post" style="display:inline;">
+    <button type="submit" class="btn btn-danger"
+            onclick="return confirm('정말로 삭제하시겠습니까?');">삭제</button>
+  </form>
+  <a href="/users" class="btn btn-primary">목록으로 돌아가기</a>
+</div>
+</body>
+</html>

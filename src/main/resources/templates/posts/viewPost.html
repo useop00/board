@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${post.title}">Post Title</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+  <a href="/">홈으로</a>
+  <h1 th:text="${post.title}">Post Title</h1>
+  <p th:text="'By ' + ${post.user.username} + ' on ' + ${#temporals.format(post.postDate, 'yyyy-MM-dd HH:mm')}">By Author on Date</p>
+  <div>
+    <p th:text="${post.content}">Post Content</p>
+  </div>
+  <hr>
+  <h3>Comments</h3>
+  <a th:href="@{/posts/{postId}/comments/new(postId=${post.id})}" class="btn btn-secondary mb-3">Add Comment</a>
+  <ul class="list-group">
+    <li th:each="comment : ${comments}" class="list-group-item">
+      <p th:text="${comment.content}">Comment Content</p>
+      <small th:text="'By ' + ${comment.user.username} + ' on ' + ${#temporals.format(comment.commentDate, 'yyyy-MM-dd HH:mm')}">By Author on Date</small>
+    </li>
+  </ul>
+</div>
+</body>
+</html>
