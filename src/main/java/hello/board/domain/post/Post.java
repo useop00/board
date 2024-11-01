@@ -48,6 +48,7 @@ public class Post {
         this.postDate = LocalDateTime.now();
     }
 
+    //==연관 관계 메서드==//
     public void setUser(User user) {
         this.user = user;
     }
