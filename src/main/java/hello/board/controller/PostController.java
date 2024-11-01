@@ -1,8 +1,11 @@
 package hello.board.controller;
 
+import hello.board.domain.comment.Comment;
+import hello.board.domain.comment.CommentForm;
 import hello.board.domain.post.PostForm;
 import hello.board.domain.post.UpdateForm;
 import hello.board.domain.user.User;
+import hello.board.service.CommentService;
 import hello.board.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -14,12 +17,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 
 @Controller
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
 
     @GetMapping("/")
     public String postList(Model model) {
@@ -47,7 +53,10 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public String viewPost(@PathVariable Long postId, Model model) {
+        List<Comment> comments = commentService.findAll(postId);
         model.addAttribute("post", postService.findByPostId(postId));
+        model.addAttribute("comments", comments);
+        model.addAttribute("commentForm", new CommentForm());
         return "posts/viewPost";
     }
 
