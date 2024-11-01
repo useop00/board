@@ -1,7 +1,7 @@
 package hello.board.repository;
 
 
-import hello.board.domain.Post;
+import hello.board.domain.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
