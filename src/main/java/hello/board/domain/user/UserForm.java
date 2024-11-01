@@ -1,4 +1,4 @@
-package hello.board.domain;
+package hello.board.domain.user;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
@@ -8,8 +8,12 @@ import lombok.Setter;
 @Setter
 public class UserForm {
 
+    @NotEmpty(message = "닉네임은 필수입니다.")
+    private String nickname;
+
     @NotEmpty(message = "아이디는 필수입니다.")
     private String username;
 
+    @NotEmpty(message = "비밀번호는 필수입니다.")
     private String password;
 }
