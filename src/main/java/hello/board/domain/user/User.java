@@ -46,11 +46,6 @@ public class User implements UserDetails {
         this.grade = grade;
     }
 
-    public void addPost(Post post) {
-        posts.add(post);
-        post.setUser(this);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
