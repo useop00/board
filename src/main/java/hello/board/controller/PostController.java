@@ -4,19 +4,19 @@ import hello.board.domain.comment.Comment;
 import hello.board.domain.comment.CommentForm;
 import hello.board.domain.post.PostForm;
 import hello.board.domain.post.UpdateForm;
-import hello.board.domain.user.User;
 import hello.board.service.CommentService;
 import hello.board.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -41,12 +41,12 @@ public class PostController {
 
     @PostMapping("/post/create")
     public String createPost(@Validated @ModelAttribute("form") PostForm form,
-                             BindingResult result, Authentication auth,
-                             RedirectAttributes redirect) {
+                             BindingResult result, Principal pri, RedirectAttributes redirect,
+                             @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         if (result.hasErrors()) {
             return "posts/createPostForm";
         }
-        Long postId = postService.savePost(form, auth.getName());
+        Long postId = postService.savePost(form, images, pri.getName());
         redirect.addFlashAttribute("successMessage", "게시글이 작성되었습니다.");
         return "redirect:/post/" + postId;
     }
@@ -70,9 +70,10 @@ public class PostController {
     }
 
     @PostMapping("/post/edit/{postId}")
-    public String updatePost(@PathVariable Long postId, @ModelAttribute("form") PostForm form, Authentication auth) {
+    public String updatePost(@PathVariable Long postId,@Validated @ModelAttribute("form") PostForm form,
+                             @RequestParam(value = "images", required = false) List<MultipartFile> images, Principal pri) {
         form.setId(postId);
-        postService.updatePost(new UpdateForm(form), auth.getName());
+        postService.updatePost(new UpdateForm(form), images, pri.getName());
         return "redirect:/post/" + postId;
     }
 

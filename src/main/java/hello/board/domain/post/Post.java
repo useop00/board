@@ -40,6 +40,9 @@ public class Post {
     @Column(name = "post_date")
     private LocalDateTime postDate;
 
+    @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
+
     @Builder
     public Post(String title, String content, User user) {
         this.title = title;
@@ -51,6 +54,11 @@ public class Post {
     //==연관 관계 메서드==//
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void addImage(Image image) {
+        images.add(image);
+        image.setPost(this);
     }
 
     public void updatePost(String title, String content) {
