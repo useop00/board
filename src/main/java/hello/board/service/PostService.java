@@ -1,16 +1,18 @@
 package hello.board.service;
 
+import hello.board.domain.post.Image;
 import hello.board.domain.post.Post;
 import hello.board.domain.post.PostForm;
 import hello.board.domain.post.UpdateForm;
 import hello.board.domain.user.User;
 import hello.board.repository.PostRepository;
 import hello.board.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -20,16 +22,24 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final ImageService imageService;
 
     @Transactional
-    public Long savePost(PostForm form, String loginId) {
-        User loginUser = userRepository.findByUsername(loginId).get();
+    public Long savePost(PostForm form, List<MultipartFile> imageFiles, String loginId) {
+        User loginUser = userRepository.findByUsername(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        return postRepository.save(Post.builder()
+        Post post = Post.builder()
                 .title(form.getTitle())
                 .content(form.getContent())
                 .user(loginUser)
-                .build()).getId();
+                .build();
+
+        Post savedPost = postRepository.save(post);
+
+        images(imageFiles, savedPost);
+
+        return savedPost.getId();
     }
     public Post findByPostId(Long postId) {
         return postRepository.findById(postId)
@@ -51,13 +61,29 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(UpdateForm form, String loginId) {
-        Post findPost = postRepository.findById(form.getId())
+    public void updatePost(UpdateForm form, List<MultipartFile> imageFiles, String loginId) {
+        Post post = postRepository.findById(form.getId())
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-        if (!findPost.getUser().getUsername().equals(loginId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+
+        if (!post.getUser().getUsername().equals(loginId)) {
+            throw new IllegalArgumentException("게시글을 수정할 권한이 없습니다.");
         }
-        findPost.updatePost(form.getTitle(), form.getContent());
+
+        // 기존 이미지 삭제
+        List<Image> existingImages = post.getImages();
+        for (Image image : existingImages) {
+            try {
+                imageService.deleteImage(image.getId());
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+            }
+        }
+        post.getImages().clear();
+
+        // 새로운 이미지 추가
+        images(imageFiles, post);
+
+        post.updatePost(form.getTitle(), form.getContent());
     }
 
     @Transactional
@@ -68,7 +94,30 @@ public class PostService {
         if (!findPost.getUser().getUsername().equals(loginId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
+        List<Image> images = findPost.getImages();
+        for (Image image : images) {
+            try {
+                imageService.deleteImage(image.getId());
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+            }
+        }
 
         postRepository.delete(findPost);
+    }
+
+    private void images(List<MultipartFile> imageFiles, Post post) {
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            for (MultipartFile file : imageFiles) {
+                if (!file.isEmpty()) {
+                    try {
+                        Image image = imageService.saveImage(file);
+                        post.addImage(image);
+                    } catch (IOException e) {
+                        throw new RuntimeException("이미지 저장에 실패했습니다.", e);
+                    }
+                }
+            }
+        }
     }
 }
