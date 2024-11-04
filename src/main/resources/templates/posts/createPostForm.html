@@ -28,6 +28,14 @@
         .btn-cancel {
             width: 100px;
         }
+        .image-preview {
+            margin-top: 10px;
+        }
+        .image-preview img {
+            max-width: 150px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -40,7 +48,8 @@
                     <p th:text="${successMessage}"></p>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="닫기"></button>
                 </div>
-                <form th:action="@{/post/create}" th:object="${form}" method="post">
+                <h2 class="form-title">새 게시글 작성</h2>
+                <form th:action="@{/post/create}" th:object="${form}" method="post" enctype="multipart/form-data">
                     <!-- 제목 입력 필드 -->
                     <div class="mb-4">
                         <label for="title" class="form-label">제목</label>
@@ -57,12 +66,17 @@
                         <!-- 내용 에러 메시지 -->
                         <div th:if="${#fields.hasErrors('content')}" class="text-danger mt-1" th:errors="*{content}"></div>
                     </div>
+                    <!-- 이미지 업로드 필드 -->
+                    <div class="mb-4">
+                        <label for="images" class="form-label">이미지 업로드</label>
+                        <input type="file" id="images" name="images" multiple class="form-control">
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
                     <!-- 제출 및 취소 버튼 -->
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-success btn-submit me-2">작성</button>
                         <a th:href="@{/}" class="btn btn-secondary btn-cancel">취소</a>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -71,5 +85,28 @@
 
 <!-- Bootstrap JS 및 의존성 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 이미지 미리보기 스크립트 -->
+<script>
+    document.getElementById('images').addEventListener('change', function (event) {
+        const imagePreview = document.getElementById('imagePreview');
+        imagePreview.innerHTML = ''; // 기존 이미지 미리보기 초기화
+
+        const files = event.target.files;
+        if (files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.classList.add('img-thumbnail');
+                        imagePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
