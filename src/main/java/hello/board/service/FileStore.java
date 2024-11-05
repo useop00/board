@@ -21,7 +21,7 @@ public class FileStore {
 
     public String saveFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
-            return null;
+            return "";
         }
         String oriImgName = cleanPath(file.getOriginalFilename());
         String savedFileName = createFileName(oriImgName);
@@ -33,14 +33,6 @@ public class FileStore {
         return savedFileName;
     }
 
-    private String createFileName(String originalFileName) {
-        return UUID.randomUUID().toString().concat(getFileExtension(originalFileName));
-    }
-
-    private String getFileExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf("."));
-    }
-
     public void deleteFile(String filePath) throws IOException {
         String fullPath = Paths.get(fileDir, filePath).toString();
         File file = new File(fullPath);
@@ -49,5 +41,13 @@ public class FileStore {
                 throw new IOException("파일 삭제에 실패했습니다: " + fullPath);
             }
         }
+    }
+
+    private String createFileName(String originalFileName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(originalFileName));
+    }
+
+    private String getFileExtension(String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
     }
 }
