@@ -70,10 +70,12 @@ public class PostController {
     }
 
     @PostMapping("/post/edit/{postId}")
-    public String updatePost(@PathVariable Long postId,@Validated @ModelAttribute("form") PostForm form,
-                             @RequestParam(value = "images", required = false) List<MultipartFile> images, Principal pri) {
+    public String updatePost(@PathVariable Long postId, @Validated @ModelAttribute("form") PostForm form,
+                             @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                             @RequestParam(value = "imageIdsToDelete", required = false) List<Long> imageIdsToDelete,
+                             Principal pri) {
         form.setId(postId);
-        postService.updatePost(new UpdateForm(form), images, pri.getName());
+        postService.updatePost(new UpdateForm(form), images, pri.getName(), imageIdsToDelete);
         return "redirect:/post/" + postId;
     }
 

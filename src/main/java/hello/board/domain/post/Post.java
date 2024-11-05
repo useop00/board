@@ -57,7 +57,7 @@ public class Post {
     }
 
     public void addImage(Image image) {
-        images.add(image);
+        this.images.add(image);
         image.setPost(this);
     }
 
