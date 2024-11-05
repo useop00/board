@@ -1,12 +1,8 @@
 package hello.board.service;
 
-import hello.board.domain.post.Image;
-import hello.board.domain.post.Post;
-import hello.board.domain.post.PostForm;
-import hello.board.domain.post.UpdateForm;
+import hello.board.domain.post.*;
 import hello.board.domain.user.User;
 import hello.board.repository.PostRepository;
-import hello.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +17,12 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final ImageService imageService;
+    private final EntityFinder entityFinder;
 
     @Transactional
     public Long savePost(PostForm form, List<MultipartFile> imageFiles, String loginId) {
-        User loginUser = userRepository.findByUsername(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User loginUser = entityFinder.getLoginUser(loginId);
 
         Post post = Post.builder()
                 .title(form.getTitle())
@@ -37,13 +32,16 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
 
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            images(imageFiles, savedPost);
+        }
+
         images(imageFiles, savedPost);
 
         return savedPost.getId();
     }
     public Post findByPostId(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+        return entityFinder.getPost(postId);
     }
 
     public List<Post> findAll() {
@@ -51,50 +49,64 @@ public class PostService {
     }
 
     public PostForm findPostForm(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없음"));
+        Post post = entityFinder.getPost(postId);
+
         PostForm form = new PostForm();
         form.setId(post.getId());
         form.setTitle(post.getTitle());
         form.setContent(post.getContent());
+
+        List<ImageDto> existingImages = post.getImages().stream()
+                .map(image -> new ImageDto(image.getId(), image.getImgUrl()))
+                .toList();
+        form.setExistingImages(existingImages);
+
         return form;
     }
 
     @Transactional
-    public void updatePost(UpdateForm form, List<MultipartFile> imageFiles, String loginId) {
-        Post post = postRepository.findById(form.getId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+    public void updatePost(UpdateForm form, List<MultipartFile> imageFiles, String loginId, List<Long> imageIdsToDelete) {
+        Post post = entityFinder.getPost(form.getId());
+        User loginUser = entityFinder.getLoginUser(loginId);
 
-        if (!post.getUser().getUsername().equals(loginId)) {
+        if (!post.getUser().equals(loginUser)) {
             throw new IllegalArgumentException("게시글을 수정할 권한이 없습니다.");
         }
 
-        // 기존 이미지 삭제
-        List<Image> existingImages = post.getImages();
-        for (Image image : existingImages) {
-            try {
-                imageService.deleteImage(image.getId());
-            } catch (IOException e) {
-                throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+        // 선택된 이미지만 삭제
+        if (imageIdsToDelete != null && !imageIdsToDelete.isEmpty()) {
+            List<Image> existingImages = post.getImages();
+            for (Long imageId : imageIdsToDelete) {
+                existingImages.stream()
+                        .filter(image -> image.getId().equals(imageId))
+                        .findFirst()
+                        .ifPresent(image -> {
+                            try {
+                                imageService.deleteImage(imageId);
+                                post.getImages().remove(image);
+                            } catch (IOException e) {
+                                throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+                            }
+                        });
             }
         }
-        post.getImages().clear();
-
         // 새로운 이미지 추가
-        images(imageFiles, post);
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            images(imageFiles, post);
+        }
 
         post.updatePost(form.getTitle(), form.getContent());
     }
 
     @Transactional
     public void deletePost(Long id, String loginId) {
-        Post findPost = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+        Post post = entityFinder.getPost(id);
+        User loginUser = entityFinder.getLoginUser(loginId);
 
-        if (!findPost.getUser().getUsername().equals(loginId)) {
+        if (!post.getUser().equals(loginUser)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
-        List<Image> images = findPost.getImages();
+        List<Image> images = post.getImages();
         for (Image image : images) {
             try {
                 imageService.deleteImage(image.getId());
@@ -103,7 +115,7 @@ public class PostService {
             }
         }
 
-        postRepository.delete(findPost);
+        postRepository.delete(post);
     }
 
     private void images(List<MultipartFile> imageFiles, Post post) {
