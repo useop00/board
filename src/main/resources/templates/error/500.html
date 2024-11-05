@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Internal Server Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h2 {
+            font-size: 48px;
+            color: #dc3545;
+        }
+        p {
+            font-size: 18px;
+            color: #6c757d;
+        }
+        .error-icon {
+            font-size: 100px;
+            color: #dc3545;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%, 75% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <div class="error-icon">⚠️</div>
+        <h2>500 - Oops! Something went wrong.</h2>
+        <p>요청을 처리하는 데 문제가 있습니다. 나중에 다시 시도해 주세요.</p>
+        <a href="/">홈페이지로 돌아가기</a>
+    </div>
+</div>
+</body>
+</html>
