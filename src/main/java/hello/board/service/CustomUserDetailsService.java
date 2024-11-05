@@ -1,6 +1,5 @@
 package hello.board.service;
 
-import hello.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,12 +10,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final EntityFinder entityFinder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        return entityFinder.getLoginUser(username);
     }
 }
 
