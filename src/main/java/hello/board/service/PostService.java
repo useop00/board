@@ -36,8 +36,6 @@ public class PostService {
             images(imageFiles, savedPost);
         }
 
-        images(imageFiles, savedPost);
-
         return savedPost.getId();
     }
     public Post findByPostId(Long postId) {
@@ -45,7 +43,7 @@ public class PostService {
     }
 
     public List<Post> findAll() {
-        return postRepository.findAll();
+        return postRepository.findAllByOrderByPostDateDesc();
     }
 
     public PostForm findPostForm(Long postId) {
@@ -70,7 +68,7 @@ public class PostService {
         User loginUser = entityFinder.getLoginUser(loginId);
 
         if (!post.getUser().equals(loginUser)) {
-            throw new IllegalArgumentException("게시글을 수정할 권한이 없습니다.");
+            throw new IllegalArgumentException("권한이 없습니다.");
         }
 
         // 선택된 이미지만 삭제
