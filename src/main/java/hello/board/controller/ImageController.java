@@ -19,7 +19,7 @@ public class ImageController {
     @Value("${file.dir}")
     private String fileDir;
 
-    @GetMapping("/image/{fileName}")
+    @GetMapping("/upload-images/{fileName}")
     public ResponseEntity<Resource> getImage(@PathVariable String fileName) throws IOException {
         String filePath = Paths.get(fileDir, fileName).toString();
         Resource resource = new FileSystemResource(filePath);
@@ -28,7 +28,6 @@ public class ImageController {
             return ResponseEntity.notFound().build();
         }
 
-        // MIME 타입 설정
         String contentType = Files.probeContentType(Paths.get(filePath));
         if (contentType == null) {
             contentType = "application/octet-stream";
