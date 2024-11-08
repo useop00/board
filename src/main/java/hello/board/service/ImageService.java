@@ -15,16 +15,17 @@ import java.io.IOException;
 @Transactional
 public class ImageService {
 
-    private final FileStore fileStore;
+    private final FileService fileService;
     private final ImageRepository imageRepository;
 
 
     public Image saveImage(MultipartFile file) throws IOException {
-        String savedFileName = fileStore.saveFile(file);
-        String imgUrl = "/image/" + savedFileName;
+        String oriImgName = file.getOriginalFilename();
+        String imgName = fileService.uploadFile(oriImgName, file.getBytes());
+        String imgUrl = fileService.generateFileUrl(imgName);
 
         Image image = Image.builder()
-                .imgName(savedFileName)
+                .imgName(imgName)
                 .oriImgName(file.getOriginalFilename())
                 .imgUrl(imgUrl)
                 .build();
@@ -34,7 +35,10 @@ public class ImageService {
     public void deleteImage(Long imageId) throws IOException {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new IllegalArgumentException("이미지가 존재하지 않습니다."));
-        fileStore.deleteFile(image.getImgName());
+
+        String fileName = image.getImgName(); // 파일명만 저장
+        fileService.deleteFile(fileName);
         imageRepository.delete(image);
     }
+
 }
