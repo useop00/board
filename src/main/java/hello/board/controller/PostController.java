@@ -7,14 +7,12 @@ import hello.board.domain.post.UpdateForm;
 import hello.board.service.CommentService;
 import hello.board.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -41,13 +39,11 @@ public class PostController {
 
     @PostMapping("/post/create")
     public String createPost(@Validated @ModelAttribute("form") PostForm form,
-                             BindingResult result, Principal pri, RedirectAttributes redirect,
-                             @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+                             BindingResult result, Principal pri, @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         if (result.hasErrors()) {
             return "posts/createPostForm";
         }
         Long postId = postService.savePost(form, images, pri.getName());
-        redirect.addFlashAttribute("successMessage", "게시글이 작성되었습니다.");
         return "redirect:/post/" + postId;
     }
 
@@ -80,8 +76,8 @@ public class PostController {
     }
 
     @PostMapping("/post/delete/{postId}")
-    public String deletePost(@PathVariable Long postId, Authentication auth) {
-        postService.deletePost(postId, auth.getName());
+    public String deletePost(@PathVariable Long postId, Principal pri) {
+        postService.deletePost(postId, pri.getName());
         return "redirect:/";
     }
 }
