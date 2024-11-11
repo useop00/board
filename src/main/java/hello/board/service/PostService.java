@@ -2,8 +2,11 @@ package hello.board.service;
 
 import hello.board.domain.post.*;
 import hello.board.domain.user.User;
+import hello.board.repository.PostQueryRepository;
 import hello.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final ImageService imageService;
     private final EntityFinder entityFinder;
+    private final PostQueryRepository postQueryRepository;
 
     @Transactional
     public Long savePost(PostForm form, List<MultipartFile> imageFiles, String loginId) {
@@ -68,7 +72,7 @@ public class PostService {
         User loginUser = entityFinder.getLoginUser(loginId);
 
         if (!post.getUser().equals(loginUser)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw getArgumentException();
         }
 
         // 선택된 이미지만 삭제
@@ -83,7 +87,7 @@ public class PostService {
                                 imageService.deleteImage(imageId);
                                 post.getImages().remove(image);
                             } catch (IOException e) {
-                                throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+                                throw getRuntimeException(e);
                             }
                         });
             }
@@ -102,18 +106,22 @@ public class PostService {
         User loginUser = entityFinder.getLoginUser(loginId);
 
         if (!post.getUser().equals(loginUser)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw getArgumentException();
         }
         List<Image> images = post.getImages();
         for (Image image : images) {
             try {
                 imageService.deleteImage(image.getId());
             } catch (IOException e) {
-                throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+                throw getRuntimeException(e);
             }
         }
 
         postRepository.delete(post);
+    }
+
+    public Page<MainPostDto> searchPosts(PostSearch search, Pageable page){
+        return postQueryRepository.searchPosts(search, page);
     }
 
     private void images(List<MultipartFile> imageFiles, Post post) {
@@ -129,5 +137,13 @@ public class PostService {
                 }
             }
         }
+    }
+
+    private static IllegalArgumentException getArgumentException() {
+        return new IllegalArgumentException("권한이 없습니다.");
+    }
+
+    private static RuntimeException getRuntimeException(IOException e) {
+        return new RuntimeException("이미지 삭제에 실패했습니다.", e);
     }
 }
