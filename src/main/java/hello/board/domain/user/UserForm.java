@@ -1,5 +1,6 @@
 package hello.board.domain.user;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,5 +16,6 @@ public class UserForm {
     private String username;
 
     @NotEmpty(message = "비밀번호는 필수입니다.")
+    @Min(7)
     private String password;
 }
