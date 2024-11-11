@@ -2,11 +2,13 @@ package hello.board.controller;
 
 import hello.board.domain.comment.Comment;
 import hello.board.domain.comment.CommentForm;
-import hello.board.domain.post.PostForm;
-import hello.board.domain.post.UpdateForm;
+import hello.board.domain.post.*;
 import hello.board.service.CommentService;
 import hello.board.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,10 +28,19 @@ public class PostController {
     private final CommentService commentService;
 
     @GetMapping("/")
-    public String postList(Model model) {
-        model.addAttribute("posts", postService.findAll());
+    public String postList(@RequestParam(value = "keyword", required = false) String keyword,
+                           @RequestParam(value = "searchField", required = false) String searchField,
+                           @RequestParam(defaultValue = "0") int page, Model model) {
+        PostSearch search = new PostSearch(keyword, searchField);
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<MainPostDto> posts = postService.searchPosts(search, pageable);
+
+        model.addAttribute("posts", posts);
+        model.addAttribute("search", search);
+
         return "posts/postList";
     }
+
 
     @GetMapping("/post/create")
     public String createPostForm(Model model) {
