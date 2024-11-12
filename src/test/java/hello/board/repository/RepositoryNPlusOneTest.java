@@ -73,10 +73,9 @@ public class RepositoryNPlusOneTest {
 
         //when
         List<Post> posts = postRepository.findByUserOrderByPostDateDesc(user);
-        int queryCount = 1;
 
         //then
-        assertQueryCount(queryCount);
+        assertQueryCount(1);
     }
 
     @Test
@@ -86,10 +85,9 @@ public class RepositoryNPlusOneTest {
 
         //when
         List<Message> messages = messageRepository.findActiveReceivedMessages(receiver);
-        int queryCount = 1;
 
         //then
-        assertQueryCount(queryCount);
+        assertQueryCount(1);
     }
     @Test
     void test_sender_message() throws Exception {
@@ -98,10 +96,9 @@ public class RepositoryNPlusOneTest {
 
         //when
         List<Message> messages = messageRepository.findActiveSentMessages(sender);
-        int queryCount = 1;
 
         //then
-        assertQueryCount(queryCount);
+        assertQueryCount(1);
     }
 
     @Test
@@ -112,9 +109,8 @@ public class RepositoryNPlusOneTest {
 
         //when
         List<Comment> comments = commentRepository.findByUserOrderByCommentDateDesc(user);
-        int queryCount = 1;
 
         //then
-        assertQueryCount(queryCount);
+        assertQueryCount(1);
     }
 }
