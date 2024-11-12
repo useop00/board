@@ -96,7 +96,7 @@ class UserServiceTest {
         });
 
         //then
-        assertEquals("이미 존재하는 사용자입니다", exception.getMessage());
+        assertEquals("이미 존재하는 아이디입니다.", exception.getMessage());
 
         verify(bCryptPasswordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any(User.class));
