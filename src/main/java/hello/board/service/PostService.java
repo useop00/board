@@ -27,27 +27,21 @@ public class PostService {
     @Transactional
     public Long savePost(PostForm form, List<MultipartFile> imageFiles, String loginId) {
         User loginUser = entityFinder.getLoginUser(loginId);
-
-        Post post = Post.builder()
+        Post savedPost = Post.builder()
                 .title(form.getTitle())
                 .content(form.getContent())
                 .user(loginUser)
                 .build();
 
-        Post savedPost = postRepository.save(post);
-
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            images(imageFiles, savedPost);
+            saveImagesToPost(imageFiles, savedPost);
         }
 
+        postRepository.save(savedPost);
         return savedPost.getId();
     }
     public Post findByPostId(Long postId) {
         return entityFinder.getPost(postId);
-    }
-
-    public List<Post> findAll() {
-        return postRepository.findAllByOrderByPostDateDesc();
     }
 
     public PostForm findPostForm(Long postId) {
@@ -58,10 +52,9 @@ public class PostService {
         form.setTitle(post.getTitle());
         form.setContent(post.getContent());
 
-        List<ImageDto> existingImages = post.getImages().stream()
+        form.setExistingImages(post.getImages().stream()
                 .map(image -> new ImageDto(image.getId(), image.getImgUrl()))
-                .toList();
-        form.setExistingImages(existingImages);
+                .toList());
 
         return form;
     }
@@ -71,32 +64,14 @@ public class PostService {
         Post post = entityFinder.getPost(form.getId());
         User loginUser = entityFinder.getLoginUser(loginId);
 
-        if (!post.getUser().equals(loginUser)) {
-            throw getArgumentException();
-        }
+        checkAuthorization(post.getUser(), loginUser);
 
-        // 선택된 이미지만 삭제
         if (imageIdsToDelete != null && !imageIdsToDelete.isEmpty()) {
-            List<Image> existingImages = post.getImages();
-            for (Long imageId : imageIdsToDelete) {
-                existingImages.stream()
-                        .filter(image -> image.getId().equals(imageId))
-                        .findFirst()
-                        .ifPresent(image -> {
-                            try {
-                                imageService.deleteImage(imageId);
-                                post.getImages().remove(image);
-                            } catch (IOException e) {
-                                throw getRuntimeException(e);
-                            }
-                        });
-            }
+            deleteSelectedImages(post, imageIdsToDelete);
         }
-        // 새로운 이미지 추가
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            images(imageFiles, post);
+            saveImagesToPost(imageFiles, post);
         }
-
         post.updatePost(form.getTitle(), form.getContent());
     }
 
@@ -104,19 +79,8 @@ public class PostService {
     public void deletePost(Long id, String loginId) {
         Post post = entityFinder.getPost(id);
         User loginUser = entityFinder.getLoginUser(loginId);
-
-        if (!post.getUser().equals(loginUser)) {
-            throw getArgumentException();
-        }
-        List<Image> images = post.getImages();
-        for (Image image : images) {
-            try {
-                imageService.deleteImage(image.getId());
-            } catch (IOException e) {
-                throw getRuntimeException(e);
-            }
-        }
-
+        checkAuthorization(post.getUser(), loginUser);
+        deleteAllImages(post);
         postRepository.delete(post);
     }
 
@@ -124,26 +88,45 @@ public class PostService {
         return postQueryRepository.searchPosts(search, page);
     }
 
-    private void images(List<MultipartFile> imageFiles, Post post) {
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            for (MultipartFile file : imageFiles) {
-                if (!file.isEmpty()) {
-                    try {
-                        Image image = imageService.saveImage(file);
-                        post.addImage(image);
-                    } catch (IOException e) {
-                        throw new RuntimeException("이미지 저장에 실패했습니다.", e);
-                    }
+    private void saveImagesToPost(List<MultipartFile> imageFiles, Post post) {
+        for (MultipartFile file : imageFiles) {
+            if (!file.isEmpty()) {
+                try {
+                    Image image = imageService.saveImage(file);
+                    post.addImage(image);
+                } catch (IOException e) {
+                    throw new RuntimeException("이미지 저장에 실패했습니다.", e);
                 }
             }
         }
     }
 
-    private static IllegalArgumentException getArgumentException() {
-        return new IllegalArgumentException("권한이 없습니다.");
+    private void deleteSelectedImages(Post post, List<Long> imageIdsToDelete) {
+        post.getImages().removeIf(image -> {
+            boolean isToDelete = imageIdsToDelete.contains(image.getId());
+            if (isToDelete) {
+                deleteImageSafely(image.getId());
+            }
+            return isToDelete;
+        });
     }
 
-    private static RuntimeException getRuntimeException(IOException e) {
-        return new RuntimeException("이미지 삭제에 실패했습니다.", e);
+    private void deleteAllImages(Post post) {
+        post.getImages().forEach(image -> deleteImageSafely(image.getId()));
+        post.getImages().clear();
+    }
+
+    private void deleteImageSafely(Long imageId) {
+        try {
+            imageService.deleteImage(imageId);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+        }
+    }
+
+    private void checkAuthorization(User postOwner, User loginUser) {
+        if (!postOwner.equals(loginUser)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
     }
 }

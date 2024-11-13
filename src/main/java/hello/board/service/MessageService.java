@@ -37,36 +37,44 @@ public class MessageService {
     public List<MessageDto> getReceivedMessages(String username) {
         User receiver = entityFinder.getLoginUser(username);
 
-        return messageRepository.findActiveReceivedMessages(receiver).stream()
-                .map(message -> new MessageDto(
-                        message.getId(),
-                        message.getSender().getUsername(),
-                        message.getSender().getNickname(),
-                        message.getReceiver().getUsername(),
-                        message.getReceiver().getNickname(),
-                        message.getContent(),
-                        message.getSentTime()))
-                .toList();
+        return mapMessagesToDto(messageRepository.findActiveReceivedMessages(receiver));
+
     }
 
     public List<MessageDto> getSentMessages(String username) {
         User sender = entityFinder.getLoginUser(username);
 
-        return messageRepository.findActiveSentMessages(sender).stream()
-                .map(message -> new MessageDto(
-                        message.getId(),
-                        message.getSender().getUsername(),
-                        message.getSender().getNickname(),
-                        message.getReceiver().getUsername(),
-                        message.getReceiver().getNickname(),
-                        message.getContent(),
-                        message.getSentTime()))
-                .toList();
+        return mapMessagesToDto(messageRepository.findActiveSentMessages(sender));
     }
+
 
     public MessageDto getMessageDtoById(Long messageId) {
         Message message = entityFinder.getMessage(messageId);
 
+        return mapMessageToDto(message);
+    }
+
+
+    @Transactional
+    public void deleteAllMessages(String username) {
+        User user = entityFinder.getLoginUser(username);
+
+        // 수신자에 의해 삭제
+        messageRepository.findActiveReceivedMessages(user)
+                .forEach(Message::markDeletedByReceiver);
+
+        // 발신자에 의해 삭제
+        messageRepository.findActiveSentMessages(user)
+                .forEach(Message::markDeletedBySender);
+    }
+
+    private List<MessageDto> mapMessagesToDto(List<Message> messages) {
+        return messages.stream()
+                .map(this::mapMessageToDto)
+                .toList();
+    }
+
+    private MessageDto mapMessageToDto(Message message) {
         return new MessageDto(
                 message.getId(),
                 message.getSender().getUsername(),
@@ -76,22 +84,5 @@ public class MessageService {
                 message.getContent(),
                 message.getSentTime()
         );
-    }
-
-    @Transactional
-    public void deleteAllMessages(String username) {
-        User user = entityFinder.getLoginUser(username);
-
-        // 수신자에 의해 삭제 처리
-        List<Message> receivedMessages = messageRepository.findActiveReceivedMessages(user);
-        for (Message message : receivedMessages) {
-            message.markDeletedByReceiver();
-        }
-
-        // 발신자에 의해 삭제 처리
-        List<Message> sentMessages = messageRepository.findActiveSentMessages(user);
-        for (Message message : sentMessages) {
-            message.markDeletedBySender();
-        }
     }
 }

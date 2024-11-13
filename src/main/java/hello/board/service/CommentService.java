@@ -23,11 +23,14 @@ public class CommentService {
         User loginUser = entityFinder.getLoginUser(loginId);
         Post post = entityFinder.getPost(form.getPostId());
 
-        return  commentRepository.save(Comment.builder()
+        Comment comment = Comment.builder()
                 .content(form.getContent())
                 .user(loginUser)
                 .post(post)
-                .build()).getId();
+                .build();
+
+        commentRepository.save(comment);
+        return comment.getId();
     }
 
     @Transactional(readOnly = true)
@@ -41,9 +44,8 @@ public class CommentService {
         Comment comment = entityFinder.getComment(commentId);
         User user = entityFinder.getLoginUser(username);
 
-        if (!comment.getUser().equals(user)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
+        checkAuthorization(comment, user);
+
         comment.updateComment(content);
     }
 
@@ -51,11 +53,15 @@ public class CommentService {
         Comment findComment = entityFinder.getComment(id);
         User user = entityFinder.getLoginUser(loginId);
 
+        checkAuthorization(findComment, user);
+
+        commentRepository.delete(findComment);
+    }
+
+    private static void checkAuthorization(Comment findComment, User user) {
         if (!findComment.getUser().equals(user)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
-
-        commentRepository.delete(findComment);
     }
 
 
