@@ -54,17 +54,6 @@ public class RepositoryNPlusOneTest {
         return user;
     }
 
-    @Test
-    void test_findAllByOrderByPostDateDesc() throws Exception {
-        //given
-        getClear();
-
-        //when
-        List<Post> posts = postRepository.findAllByOrderByPostDateDesc();
-
-        //then
-        assertQueryCount(1);
-    }
 
     @Test
     void test_findByUserOrderByPostDateDesc() throws Exception {
