@@ -49,8 +49,8 @@ public class PostController {
     }
 
     @PostMapping("/post/create")
-    public String createPost(@Validated @ModelAttribute("form") PostForm form,
-                             BindingResult result, Principal pri, @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+    public String createPost(@Validated @ModelAttribute("form") PostForm form, BindingResult result, Principal pri,
+                             @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         if (result.hasErrors()) {
             return "posts/createPostForm";
         }

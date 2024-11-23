@@ -31,16 +31,19 @@ public class UserService {
     @Transactional
     public Long saveUser(UserForm form) {
 
-        if (userRepository.findByUsername(form.getUsername()).isPresent()) {
+        if (userRepository.existsByUsername(form.getUsername())) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
 
-        return userRepository.save(User.builder()
+        User savedUser = User.builder()
                 .username(form.getUsername())
                 .nickname(form.getNickname())
                 .password(bCryptPasswordEncoder.encode(form.getPassword()))
                 .grade(Role.USER)
-                .build()).getId();
+                .build();
+
+        userRepository.save(savedUser);
+        return savedUser.getId();
     }
 
     public UserPostsAndCommentsDto getUserPostsAndComments(String username) {
@@ -53,7 +56,7 @@ public class UserService {
         List<CommentDto> comments = commentRepository.findByUserOrderByCommentDateDesc(user).stream()
                 .map(comment -> new CommentDto(
                         comment.getId(),
-                        comment.getPost().getId(), // 댓글이 달린 게시글의 ID
+                        comment.getPost().getId(),
                         comment.getContent(),
                         comment.getCommentDate()))
                 .collect(Collectors.toList());
