@@ -61,7 +61,7 @@ public class RepositoryNPlusOneTest {
         User user = persistUser();
 
         //when
-        List<Post> posts = postRepository.findByUserOrderByPostDateDesc(user);
+        postRepository.findByUserOrderByPostDateDesc(user);
 
         //then
         assertQueryCount(1);
@@ -73,7 +73,7 @@ public class RepositoryNPlusOneTest {
         User receiver = persistUser();
 
         //when
-        List<Message> messages = messageRepository.findActiveReceivedMessages(receiver);
+        messageRepository.findActiveReceivedMessages(receiver);
 
         //then
         assertQueryCount(1);
@@ -84,7 +84,7 @@ public class RepositoryNPlusOneTest {
         User sender = persistUser();
 
         //when
-        List<Message> messages = messageRepository.findActiveSentMessages(sender);
+        messageRepository.findActiveSentMessages(sender);
 
         //then
         assertQueryCount(1);
@@ -97,7 +97,7 @@ public class RepositoryNPlusOneTest {
 
 
         //when
-        List<Comment> comments = commentRepository.findByUserOrderByCommentDateDesc(user);
+        commentRepository.findByUserOrderByCommentDateDesc(user);
 
         //then
         assertQueryCount(1);
