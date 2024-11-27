@@ -1,5 +1,6 @@
 package hello.board.domain.post;
 
+import hello.board.domain.BaseEntity;
 import hello.board.domain.TimeUtil;
 import hello.board.domain.comment.Comment;
 import hello.board.domain.user.User;
@@ -9,7 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +20,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter
 @Table(name = "posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,18 +37,16 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @Column(name = "post_date")
-    private LocalDateTime postDate;
 
     @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
     @Builder
-    public Post(String title, String content, User user) {
+    private Post(String title, String content, User user) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.setUser(user);
-        this.postDate = LocalDateTime.now();
     }
 
     //==연관 관계 메서드==//
@@ -67,6 +65,6 @@ public class Post {
     }
 
     public String getFormattedPostDate() {
-        return TimeUtil.getTime(this.postDate);
+        return TimeUtil.getTime(this.getCreateDateTime());
     }
 }

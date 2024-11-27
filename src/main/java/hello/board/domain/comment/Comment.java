@@ -1,5 +1,6 @@
 package hello.board.domain.comment;
 
+import hello.board.domain.BaseEntity;
 import hello.board.domain.TimeUtil;
 import hello.board.domain.post.Post;
 import hello.board.domain.user.User;
@@ -9,14 +10,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,15 +31,11 @@ public class Comment {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "comment_date")
-    private LocalDateTime commentDate;
-
     @Builder
-    public Comment(String content, Post post, User user) {
+    private Comment(String content, Post post, User user) {
         this.content = content;
         this.post = post;
         this.user = user;
-        this.commentDate = LocalDateTime.now();
     }
 
     public void updateComment(String newContent) {
@@ -52,6 +47,6 @@ public class Comment {
     }
 
     public String getFormattedCommentDate() {
-        return TimeUtil.getTime(this.commentDate);
+        return TimeUtil.getTime(this.getCreateDateTime());
     }
 }
