@@ -14,15 +14,15 @@ public class MainPostDto {
     private final String nickname;
     private final String title;
     private final String content;
-    private final String postDate;
+    private final String createDateTime;
 
     @QueryProjection
-    public MainPostDto(Long id, String username, String nickname, String title, String content, LocalDateTime postDate) {
+    public MainPostDto(Long id, String username, String nickname, String title, String content, LocalDateTime createDateTime) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
         this.title = title;
         this.content = content;
-        this.postDate = TimeUtil.getTime(postDate);
+        this.createDateTime = TimeUtil.getTime(createDateTime);
     }
 }

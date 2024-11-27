@@ -27,21 +27,35 @@ public class PostService {
     @Transactional
     public Long savePost(PostForm form, List<MultipartFile> imageFiles, String loginId) {
         User loginUser = entityFinder.getLoginUser(loginId);
-        Post savedPost = Post.builder()
+        Post post = Post.builder()
                 .title(form.getTitle())
                 .content(form.getContent())
                 .user(loginUser)
                 .build();
 
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            saveImagesToPost(imageFiles, savedPost);
+            saveImagesToPost(imageFiles, post);
         }
 
-        postRepository.save(savedPost);
+        Post savedPost = postRepository.save(post);
         return savedPost.getId();
     }
-    public Post findByPostId(Long postId) {
-        return entityFinder.getPost(postId);
+    public PostDetailDto findByPostId(Long postId) {
+        Post post = entityFinder.getPost(postId);
+
+        List<ImageDto> imageDto = post.getImages().stream()
+                .map(image -> new ImageDto(image.getId(), image.getImgUrl()))
+                .toList();
+
+        return new PostDetailDto(
+                post.getId(),
+                post.getUser().getUsername(),
+                post.getUser().getNickname(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreateDateTime(),
+                imageDto
+        );
     }
 
     public PostForm findPostForm(Long postId) {
