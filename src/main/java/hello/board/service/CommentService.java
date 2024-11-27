@@ -1,6 +1,7 @@
 package hello.board.service;
 
 import hello.board.domain.comment.Comment;
+import hello.board.domain.comment.CommentDto;
 import hello.board.domain.comment.CommentForm;
 import hello.board.domain.post.Post;
 import hello.board.domain.user.User;
@@ -34,10 +35,16 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findAll(Long postId) {
+    public List<CommentDto> findAll(Long postId) {
         Post post = entityFinder.getPost(postId);
 
-        return post.getComments();
+        return post.getComments().stream()
+                .map(comment -> new CommentDto(
+                        comment.getId(),
+                        comment.getPost().getId(),
+                        comment.getContent(),
+                        comment.getCreateDateTime()
+                )).toList();
     }
 
     public void updateComment(String content, Long commentId, String username) {
