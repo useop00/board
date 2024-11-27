@@ -1,20 +1,18 @@
 package hello.board.domain.post;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-public class PostDto {
+public class MyPagePostDto {
     private Long id;
     private String title;
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDateTime;
 
-    public PostDto(Long id, String title, LocalDateTime createdDate) {
+    public MyPagePostDto(Long id, String title, LocalDateTime createdDateTime) {
         this.id = id;
         this.title = title;
-        this.createdDate = createdDate;
+        this.createdDateTime = createdDateTime;
     }
 }
