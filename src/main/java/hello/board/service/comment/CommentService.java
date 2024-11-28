@@ -25,11 +25,7 @@ public class CommentService {
         User loginUser = entityFinder.getLoginUser(loginId);
         Post post = entityFinder.getPost(form.getPostId());
 
-        Comment comment = Comment.builder()
-                .content(form.getContent())
-                .user(loginUser)
-                .post(post)
-                .build();
+        Comment comment = form.toEntity(loginUser, post);
 
         commentRepository.save(comment);
         return comment.getId();
@@ -39,13 +35,7 @@ public class CommentService {
     public List<CommentDto> findAll(Long postId) {
         Post post = entityFinder.getPost(postId);
 
-        return post.getComments().stream()
-                .map(comment -> new CommentDto(
-                        comment.getId(),
-                        comment.getPost().getId(),
-                        comment.getContent(),
-                        comment.getCreateDateTime()
-                )).toList();
+        return getCommentDto(post);
     }
 
     public void updateComment(String content, Long commentId, String username) {
@@ -64,6 +54,12 @@ public class CommentService {
         checkAuthorization(findComment, user);
 
         commentRepository.delete(findComment);
+    }
+
+    private static List<CommentDto> getCommentDto(Post post) {
+        return post.getComments().stream()
+                .map(CommentDto::of)
+                .toList();
     }
 
     private static void checkAuthorization(Comment findComment, User user) {

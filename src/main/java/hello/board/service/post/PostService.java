@@ -1,9 +1,11 @@
-package hello.board.service;
+package hello.board.service.post;
 
 import hello.board.domain.post.*;
 import hello.board.domain.user.User;
 import hello.board.repository.PostQueryRepository;
 import hello.board.repository.PostRepository;
+import hello.board.service.EntityFinder;
+import hello.board.service.image.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,11 +29,8 @@ public class PostService {
     @Transactional
     public Long savePost(PostForm form, List<MultipartFile> imageFiles, String loginId) {
         User loginUser = entityFinder.getLoginUser(loginId);
-        Post post = Post.builder()
-                .title(form.getTitle())
-                .content(form.getContent())
-                .user(loginUser)
-                .build();
+
+        Post post = form.toEntity(loginUser);
 
         if (imageFiles != null && !imageFiles.isEmpty()) {
             saveImagesToPost(imageFiles, post);
@@ -43,34 +42,13 @@ public class PostService {
     public PostDetailDto findByPostId(Long postId) {
         Post post = entityFinder.getPost(postId);
 
-        List<ImageDto> imageDto = post.getImages().stream()
-                .map(image -> new ImageDto(image.getId(), image.getImgUrl()))
-                .toList();
-
-        return new PostDetailDto(
-                post.getId(),
-                post.getUser().getUsername(),
-                post.getUser().getNickname(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCreateDateTime(),
-                imageDto
-        );
+        return PostDetailDto.of(post);
     }
 
     public PostForm findPostForm(Long postId) {
         Post post = entityFinder.getPost(postId);
 
-        PostForm form = new PostForm();
-        form.setId(post.getId());
-        form.setTitle(post.getTitle());
-        form.setContent(post.getContent());
-
-        form.setExistingImages(post.getImages().stream()
-                .map(image -> new ImageDto(image.getId(), image.getImgUrl()))
-                .toList());
-
-        return form;
+        return PostForm.of(post);
     }
 
     @Transactional
@@ -102,11 +80,13 @@ public class PostService {
         return postQueryRepository.searchPosts(search, page);
     }
 
+
     private void saveImagesToPost(List<MultipartFile> imageFiles, Post post) {
         for (MultipartFile file : imageFiles) {
             if (!file.isEmpty()) {
                 try {
                     Image image = imageService.saveImage(file);
+                    image.setPost(post);
                     post.addImage(image);
                 } catch (IOException e) {
                     throw new RuntimeException("이미지 저장에 실패했습니다.", e);

@@ -1,10 +1,11 @@
-package hello.board.service;
+package hello.board.service.message;
 
 import hello.board.domain.message.Message;
 import hello.board.domain.message.MessageDto;
 import hello.board.domain.message.MessageForm;
 import hello.board.domain.user.User;
 import hello.board.repository.MessageRepository;
+import hello.board.service.EntityFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +25,7 @@ public class MessageService {
         User sender = entityFinder.getLoginUser(senderUsername);
         User receiver = entityFinder.getLoginUser(form.getReceiverUsername());
 
-        Message message = Message.builder()
-                .sender(sender)
-                .receiver(receiver)
-                .content(form.getContent())
-                .build();
+        Message message = form.toEntity(sender, receiver);
 
         messageRepository.save(message);
         return message.getId();
@@ -51,7 +48,7 @@ public class MessageService {
     public MessageDto getMessageDtoById(Long messageId) {
         Message message = entityFinder.getMessage(messageId);
 
-        return mapMessageToDto(message);
+        return MessageDto.of(message);
     }
 
 
@@ -70,19 +67,9 @@ public class MessageService {
 
     private List<MessageDto> mapMessagesToDto(List<Message> messages) {
         return messages.stream()
-                .map(this::mapMessageToDto)
+                .map(MessageDto::of)
                 .toList();
     }
 
-    private MessageDto mapMessageToDto(Message message) {
-        return new MessageDto(
-                message.getId(),
-                message.getSender().getUsername(),
-                message.getSender().getNickname(),
-                message.getReceiver().getUsername(),
-                message.getReceiver().getNickname(),
-                message.getContent(),
-                message.getSentTime()
-        );
-    }
+
 }

@@ -1,5 +1,6 @@
 package hello.board.domain.comment;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -11,10 +12,20 @@ public class CommentDto {
     private String content;
     private LocalDateTime createdDateTime;
 
-    public CommentDto(Long id, Long postId, String content, LocalDateTime createdDate) {
+    @Builder
+    private CommentDto(Long id, Long postId, String content, LocalDateTime createdDate) {
         this.id = id;
         this.postId = postId;
         this.content = content;
         this.createdDateTime = createdDate;
+    }
+
+    public static CommentDto of(Comment comment) {
+        return CommentDto.builder()
+                .id(comment.getId())
+                .postId(comment.getPost().getId())
+                .content(comment.getContent())
+                .createdDate(comment.getCreateDateTime())
+                .build();
     }
 }

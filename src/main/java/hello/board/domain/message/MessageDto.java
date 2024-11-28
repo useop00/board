@@ -1,5 +1,6 @@
 package hello.board.domain.message;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,8 @@ public class MessageDto {
     private String content;
     private LocalDateTime sentTime;
 
-    public MessageDto(Long id, String senderUsername, String senderNickname, String receiverUsername, String receiverNickname, String content, LocalDateTime sentTime) {
+    @Builder
+    private MessageDto(Long id, String senderUsername, String senderNickname, String receiverUsername, String receiverNickname, String content, LocalDateTime sentTime) {
         this.id = id;
         this.senderUsername = senderUsername;
         this.senderNickname = senderNickname;
@@ -23,5 +25,17 @@ public class MessageDto {
         this.receiverNickname = receiverNickname;
         this.content = content;
         this.sentTime = sentTime;
+    }
+
+    public static MessageDto of(Message message) {
+        return MessageDto.builder()
+                .id(message.getId())
+                .senderUsername(message.getSender().getUsername())
+                .senderNickname(message.getSender().getNickname())
+                .receiverUsername(message.getReceiver().getUsername())
+                .receiverNickname(message.getReceiver().getNickname())
+                .content(message.getContent())
+                .sentTime(message.getSentTime())
+                .build();
     }
 }

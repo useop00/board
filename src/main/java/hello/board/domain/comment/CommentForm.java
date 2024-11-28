@@ -1,5 +1,7 @@
 package hello.board.domain.comment;
 
+import hello.board.domain.post.Post;
+import hello.board.domain.user.User;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,4 +14,12 @@ public class CommentForm {
     private String content;
 
     private Long postId;
+
+    public Comment toEntity(User user, Post post) {
+        return Comment.builder()
+                .content(this.content)
+                .user(user)
+                .post(post)
+                .build();
+    }
 }

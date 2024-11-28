@@ -1,6 +1,6 @@
 package hello.board.domain.user;
 
-import jakarta.validation.constraints.Min;
+import hello.board.domain.Role;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +16,14 @@ public class UserForm {
     private String username;
 
     @NotEmpty(message = "비밀번호는 필수입니다.")
-    @Min(7)
     private String password;
+
+    public User toEntity(String encodedPassword) {
+        return User.builder()
+                .username(this.username)
+                .nickname(this.nickname)
+                .password(encodedPassword)
+                .grade(Role.USER)
+                .build();
+    }
 }

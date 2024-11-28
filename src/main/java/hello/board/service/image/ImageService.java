@@ -29,6 +29,7 @@ public class ImageService {
                 .oriImgName(file.getOriginalFilename())
                 .imgUrl(imgUrl)
                 .build();
+
         return imageRepository.save(image);
     }
 
@@ -36,8 +37,7 @@ public class ImageService {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new IllegalArgumentException("이미지가 존재하지 않습니다."));
 
-        String fileName = image.getImgName(); // 파일명만 저장
-        fileService.deleteFile(fileName);
+        fileService.deleteFile(image.getImgName());
         imageRepository.delete(image);
     }
 

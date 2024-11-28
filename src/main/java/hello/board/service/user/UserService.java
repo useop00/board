@@ -1,6 +1,5 @@
 package hello.board.service.user;
 
-import hello.board.domain.Role;
 import hello.board.domain.comment.CommentDto;
 import hello.board.domain.post.MyPagePostDto;
 import hello.board.domain.user.User;
@@ -35,12 +34,8 @@ public class UserService {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
 
-        User savedUser = User.builder()
-                .username(form.getUsername())
-                .nickname(form.getNickname())
-                .password(bCryptPasswordEncoder.encode(form.getPassword()))
-                .grade(Role.USER)
-                .build();
+        String encodedPassword = bCryptPasswordEncoder.encode(form.getPassword());
+        User savedUser = form.toEntity(encodedPassword);
 
         userRepository.save(savedUser);
         return savedUser.getId();
@@ -58,17 +53,13 @@ public class UserService {
 
     private List<MyPagePostDto> getMyPagePostDto(User user) {
         return postRepository.findByUserOrderByCreateDateTimeDesc(user).stream()
-                .map(post -> new MyPagePostDto(post.getId(), post.getTitle(), post.getCreateDateTime()))
+                .map(MyPagePostDto::of)
                 .toList();
     }
 
     private List<CommentDto> getCommentDto(User user) {
         return commentRepository.findByUserOrderByCreateDateTimeDesc(user).stream()
-                .map(comment -> new CommentDto(
-                        comment.getId(),
-                        comment.getPost().getId(),
-                        comment.getContent(),
-                        comment.getCreateDateTime()))
+                .map(CommentDto::of)
                 .toList();
     }
 }
