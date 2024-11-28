@@ -1,4 +1,4 @@
-package hello.board.service;
+package hello.board.service.image;
 
 
 import hello.board.domain.post.Image;

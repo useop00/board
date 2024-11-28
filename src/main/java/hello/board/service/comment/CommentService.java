@@ -1,4 +1,4 @@
-package hello.board.service;
+package hello.board.service.comment;
 
 import hello.board.domain.comment.Comment;
 import hello.board.domain.comment.CommentDto;
@@ -6,6 +6,7 @@ import hello.board.domain.comment.CommentForm;
 import hello.board.domain.post.Post;
 import hello.board.domain.user.User;
 import hello.board.repository.CommentRepository;
+import hello.board.service.EntityFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,4 @@ public class CommentService {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
     }
-
-
 }

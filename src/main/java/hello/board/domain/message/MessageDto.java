@@ -1,14 +1,10 @@
 package hello.board.domain.message;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@AllArgsConstructor
 public class MessageDto {
 
     private Long id;
@@ -18,4 +14,14 @@ public class MessageDto {
     private String receiverNickname;
     private String content;
     private LocalDateTime sentTime;
+
+    public MessageDto(Long id, String senderUsername, String senderNickname, String receiverUsername, String receiverNickname, String content, LocalDateTime sentTime) {
+        this.id = id;
+        this.senderUsername = senderUsername;
+        this.senderNickname = senderNickname;
+        this.receiverUsername = receiverUsername;
+        this.receiverNickname = receiverNickname;
+        this.content = content;
+        this.sentTime = sentTime;
+    }
 }

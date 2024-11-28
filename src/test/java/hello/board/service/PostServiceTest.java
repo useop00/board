@@ -6,6 +6,7 @@ import hello.board.domain.post.PostForm;
 import hello.board.domain.user.User;
 import hello.board.repository.PostRepository;
 import hello.board.repository.UserRepository;
+import hello.board.service.post.PostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,7 +33,12 @@ class PostServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        loginUser = new User("loginUser", "nickname", "password", Role.USER);
+        loginUser = User.builder()
+                .username("loginUser")
+                .nickname("nickname")
+                .password("password")
+                .grade(Role.USER)
+                .build();
         when(userRepository.save(any(User.class))).thenReturn(loginUser);
         when(entityFinder.getLoginUser(anyString())).thenReturn(loginUser);
 

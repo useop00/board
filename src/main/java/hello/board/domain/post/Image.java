@@ -29,7 +29,7 @@ public class Image {
     private Post post;
 
     @Builder
-    public Image(String imgName, String oriImgName, String imgUrl) {
+    private Image(String imgName, String oriImgName, String imgUrl) {
         this.imgName = imgName;
         this.oriImgName = oriImgName;
         this.imgUrl = imgUrl;

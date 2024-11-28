@@ -42,7 +42,7 @@ public class Message {
     private boolean isDeletedByReceiver = false;
 
     @Builder
-    public Message(User sender, User receiver, String content) {
+    private Message(User sender, User receiver, String content) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;

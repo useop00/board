@@ -39,12 +39,13 @@ public class User implements UserDetails {
     private List<Post> posts = new ArrayList<>();
 
     @Builder
-    public User(String username, String nickname, String password, Role grade) {
+    private User(String username, String nickname, String password, Role grade) {
         this.username = username;
         this.nickname = nickname;
         this.password = password;
         this.grade = grade;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
