@@ -1,8 +1,8 @@
 package hello.board.domain.post;
 
 import hello.board.domain.BaseEntity;
-import hello.board.domain.TimeUtil;
 import hello.board.domain.comment.Comment;
+import hello.board.domain.like.Like;
 import hello.board.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -34,37 +34,29 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Like> likes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
+    private final List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
-    private List<Image> images = new ArrayList<>();
+    private final List<Image> images = new ArrayList<>();
 
     @Builder
     private Post(String title, String content, User user) {
-        this.id = id;
         this.title = title;
         this.content = content;
-        this.setUser(user);
-    }
-
-    //==연관 관계 메서드==//
-    public void setUser(User user) {
         this.user = user;
     }
 
     public void addImage(Image image) {
-        this.images.add(image);
+        images.add(image);
         image.setPost(this);
     }
 
     public void updatePost(String title, String content) {
         this.title = title;
         this.content = content;
-    }
-
-    public String getFormattedPostDate() {
-        return TimeUtil.getTime(this.getCreateDateTime());
     }
 }
