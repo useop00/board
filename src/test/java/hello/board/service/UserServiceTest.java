@@ -21,13 +21,13 @@ class UserServiceTest {
         //given
         UserForm userForm1 = new UserForm();
         userForm1.setUsername("testUser");
-        userForm1.setNickname("tester1");
-        userForm1.setPassword("password123");
+        userForm1.setNickname("nickname");
+        userForm1.setPassword("password");
 
         UserForm userForm2 = new UserForm();
         userForm2.setUsername("testUser");
-        userForm2.setNickname("tester2");
-        userForm2.setPassword("password123");
+        userForm2.setNickname("nickname2");
+        userForm2.setPassword("password");
 
         //when
         userService.saveUser(userForm1);
