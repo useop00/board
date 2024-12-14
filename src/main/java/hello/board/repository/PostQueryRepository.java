@@ -2,7 +2,10 @@ package hello.board.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import hello.board.domain.post.*;
+import hello.board.domain.post.MainPostDto;
+import hello.board.domain.post.PostSearch;
+import hello.board.domain.post.QMainPostDto;
+import hello.board.domain.post.QPost;
 import hello.board.domain.user.QUser;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
@@ -22,37 +25,46 @@ public class PostQueryRepository {
     }
 
     public Page<MainPostDto> searchPosts(PostSearch search, Pageable pageable) {
+        BooleanExpression predicate = createPredicate(search);
+
+        List<MainPostDto> content = fetchContent(pageable, predicate);
+        long total = fetchTotalCount(predicate);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private List<MainPostDto> fetchContent(Pageable pageable, BooleanExpression predicate) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
-        BooleanExpression predicate = createPredicate(search);
-
         // 페이징된 결과 조회
-        List<MainPostDto> content = jpaQueryFactory
+        return jpaQueryFactory
                 .select(new QMainPostDto(
                         post.id,
                         user.username,
                         user.nickname,
                         post.title,
                         post.content,
-                        post.postDate
+                        post.createDateTime
                 ))
                 .from(post)
                 .leftJoin(post.user, user)
                 .where(predicate)
-                .orderBy(post.postDate.desc())
+                .orderBy(post.createDateTime.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
 
-        // 전체 게시글 수 조회
-        long total = jpaQueryFactory
+
+    private long fetchTotalCount(BooleanExpression predicate) {
+        QPost post = QPost.post;
+
+        return jpaQueryFactory
                 .select(post.count())
                 .from(post)
                 .where(predicate)
                 .fetchOne();
-
-        return new PageImpl<>(content, pageable, total);
     }
 
 
