@@ -1,7 +1,7 @@
 package hello.board.controller;
 
 import hello.board.domain.comment.CommentForm;
-import hello.board.service.CommentService;
+import hello.board.service.comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;

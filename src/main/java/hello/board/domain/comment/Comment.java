@@ -1,7 +1,6 @@
 package hello.board.domain.comment;
 
 import hello.board.domain.BaseEntity;
-import hello.board.domain.TimeUtil;
 import hello.board.domain.post.Post;
 import hello.board.domain.user.User;
 import jakarta.persistence.*;
@@ -39,14 +38,7 @@ public class Comment extends BaseEntity {
     }
 
     public void updateComment(String newContent) {
-        changeContent(newContent);
+        this.content = newContent;
     }
 
-    private void changeContent(String content) {
-        this.content = content;
-    }
-
-    public String getFormattedCommentDate() {
-        return TimeUtil.getTime(this.getCreateDateTime());
-    }
 }

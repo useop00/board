@@ -11,16 +11,18 @@ public class CommentDto {
     private final Long id;
     private final Long postId;
     private final String content;
-    private final String createdDateTime;
+    private final LocalDateTime createdDateTime;
     private final String nickname;
     private final String username;
+    private final String createTime;
 
     @Builder
     private CommentDto(Long id, Long postId, String content, LocalDateTime createdDate, String nickname, String username) {
         this.id = id;
         this.postId = postId;
         this.content = content;
-        this.createdDateTime = TimeUtil.getTime(createdDate);
+        this.createdDateTime = createdDate;
+        this.createTime = TimeUtil.getTime(createdDateTime);
         this.nickname = nickname;
         this.username = username;
     }
