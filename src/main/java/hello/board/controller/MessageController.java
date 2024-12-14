@@ -3,7 +3,7 @@ package hello.board.controller;
 import hello.board.domain.message.MessageDto;
 import hello.board.domain.message.MessageForm;
 import hello.board.service.EntityFinder;
-import hello.board.service.MessageService;
+import hello.board.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

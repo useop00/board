@@ -1,4 +1,4 @@
-package hello.board.service;
+package hello.board.service.image;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

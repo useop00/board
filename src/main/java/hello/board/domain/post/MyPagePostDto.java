@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 @Getter
 public class MyPagePostDto {
-    private Long id;
-    private String title;
-    private LocalDateTime createdDateTime;
+    private final Long id;
+    private final String title;
+    private final LocalDateTime createdDateTime;
 
     @Builder
     private MyPagePostDto(Long id, String title, LocalDateTime createdDateTime) {

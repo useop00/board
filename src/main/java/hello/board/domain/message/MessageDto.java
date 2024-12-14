@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 @Getter
 public class MessageDto {
 
-    private Long id;
-    private String senderUsername;
-    private String senderNickname;
-    private String receiverUsername;
-    private String receiverNickname;
-    private String content;
-    private LocalDateTime sentTime;
+    private final Long id;
+    private final String senderUsername;
+    private final String senderNickname;
+    private final String receiverUsername;
+    private final String receiverNickname;
+    private final String content;
+    private final LocalDateTime sentTime;
 
     @Builder
     private MessageDto(Long id, String senderUsername, String senderNickname, String receiverUsername, String receiverNickname, String content, LocalDateTime sentTime) {

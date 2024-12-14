@@ -1,10 +1,11 @@
 package hello.board.controller;
 
-import hello.board.domain.comment.Comment;
+import hello.board.domain.comment.CommentDto;
 import hello.board.domain.comment.CommentForm;
 import hello.board.domain.post.*;
-import hello.board.service.CommentService;
-import hello.board.service.PostService;
+import hello.board.service.comment.CommentService;
+import hello.board.service.post.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,9 +60,11 @@ public class PostController {
     }
 
     @GetMapping("/post/{postId}")
-    public String viewPost(@PathVariable Long postId, Model model) {
-        List<Comment> comments = commentService.findAll(postId);
-        model.addAttribute("post", postService.findByPostId(postId));
+    public String viewPost(@PathVariable Long postId, Model model, HttpServletRequest request) {
+        PostDetailDto postDetail = postService.findByPostId(postId, request);
+        List<CommentDto> comments = commentService.findAll(postId);
+
+        model.addAttribute("post", postDetail);
         model.addAttribute("comments", comments);
         model.addAttribute("commentForm", new CommentForm());
         return "posts/viewPost";

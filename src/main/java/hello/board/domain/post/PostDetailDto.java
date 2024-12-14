@@ -17,9 +17,11 @@ public class PostDetailDto {
     private final String content;
     private final String createDateTime;
     private final List<ImageDto> images;
+    private final Integer viewCount;
+    private final Integer likeCount;
 
     @Builder
-    private PostDetailDto(Long id, String username, String nickname, String title, String content, LocalDateTime createDateTime, List<ImageDto> images) {
+    private PostDetailDto(Long id, String username, String nickname, String title, String content, LocalDateTime createDateTime, List<ImageDto> images, Integer viewCount, Integer likeCount) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
@@ -27,9 +29,11 @@ public class PostDetailDto {
         this.content = content;
         this.createDateTime = TimeUtil.getTime(createDateTime);
         this.images = images;
+        this.viewCount = viewCount;
+        this.likeCount = likeCount;
     }
 
-    public static PostDetailDto of(Post post) {
+    public static PostDetailDto of(Post post, Integer viewCount, Integer likeCount) {
         return PostDetailDto.builder()
                 .id(post.getId())
                 .username(post.getUser().getUsername())
@@ -38,6 +42,8 @@ public class PostDetailDto {
                 .content(post.getContent())
                 .createDateTime(post.getCreateDateTime())
                 .images(post.getImages().stream().map(ImageDto::of).toList())
+                .viewCount(viewCount)
+                .likeCount(likeCount)
                 .build();
     }
 }
